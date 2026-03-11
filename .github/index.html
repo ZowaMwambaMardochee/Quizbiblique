@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Quiz Biblique</title>
+
+<style>
+
+body{
+background:linear-gradient(135deg,#0f0f0f,#2d1b69);
+color:white;
+font-family:Arial;
+text-align:center;
+padding:20px;
+}
+
+h1{
+font-size:40px;
+margin-bottom:20px;
+}
+
+#question{
+font-size:32px;
+border:3px solid white;
+border-radius:15px;
+padding:25px;
+margin:30px auto;
+max-width:900px;
+}
+
+button{
+padding:15px 25px;
+font-size:18px;
+margin:8px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.buzz1{background:#e74c3c;}
+.buzz2{background:#3498db;}
+.buzz3{background:#2ecc71;}
+.buzz4{background:#f1c40f;color:black;}
+
+.good{background:#27ae60;}
+.bad{background:#e67e22;}
+.next{background:#34495e;}
+
+#timer{
+font-size:60px;
+margin:20px;
+}
+
+.warning{
+color:#f39c12;
+}
+
+table{
+margin:auto;
+margin-top:30px;
+border-collapse:collapse;
+}
+
+td{
+padding:15px 30px;
+border:1px solid white;
+font-size:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>🏆 QUIZ BIBLIQUE 🏆</h1>
+
+<div id="question">Clique sur SUIVANTE</div>
+
+<div id="timer">12</div>
+
+<div>
+<button class="buzz1" onclick="buzz(1)">⚡ Équipe 1</button>
+<button class="buzz2" onclick="buzz(2)">⚡ Équipe 2</button>
+<button class="buzz3" onclick="buzz(3)">⚡ Équipe 3</button>
+<button class="buzz4" onclick="buzz(4)">⚡ Équipe 4</button>
+</div>
+
+<br>
+
+<button class="good" onclick="correct()">✅ Bonne réponse</button>
+<button class="bad" onclick="wrong()">❌ Mauvaise réponse</button>
+<button class="next" onclick="nextQuestion()">➡️ Suivante</button>
+
+<h2 id="buzzinfo"></h2>
+
+<table>
+<tr><td>Équipe 1</td><td id="s1">0</td></tr>
+<tr><td>Équipe 2</td><td id="s2">0</td></tr>
+<tr><td>Équipe 3</td><td id="s3">0</td></tr>
+<tr><td>Équipe 4</td><td id="s4">0</td></tr>
+</table>
+
+<script>
+
+let questions=[]
+let scores=[0,0,0,0]
+let currentTeam=null
+let buzzLock=false
+
+let timer
+let time=12
+
+const POINTS_TO_WIN=10
+
+
+async function loadQuestions(){
+
+try{
+
+const res=await fetch("questions.json")
+
+if(res.ok){
+
+questions=await res.json()
+
+console.log("Questions chargées :",questions.length)
+
+}
+
+}catch(e){
+
+console.log("questions.json non trouvé")
+
+}
+
+}
+
+loadQuestions()
+
+
+function startTimer(){
+
+clearInterval(timer)
+
+time=12
+
+document.getElementById("timer").innerText=time
+
+timer=setInterval(()=>{
+
+time--
+
+document.getElementById("timer").innerText=time
+
+if(time<=3){
+document.getElementById("timer").classList.add("warning")
+}
+
+if(time<0){
+
+clearInterval(timer)
+
+buzzLock=true
+
+document.getElementById("buzzinfo").innerText="⏰ Temps écoulé"
+
+}
+
+},1000)
+
+}
+
+
+function nextQuestion(){
+
+if(questions.length===0){
+
+showWinner()
+
+return
+
+}
+
+let index=Math.floor(Math.random()*questions.length)
+
+let q=questions.splice(index,1)[0]
+
+document.getElementById("question").innerText=q.question
+
+currentTeam=null
+buzzLock=false
+
+document.getElementById("buzzinfo").innerText=""
+
+startTimer()
+
+}
+
+
+function buzz(team){
+
+if(buzzLock||currentTeam!==null)return
+
+currentTeam=team
+buzzLock=true
+
+document.getElementById("buzzinfo").innerText="⚡ Équipe "+team+" a buzzé !"
+
+clearInterval(timer)
+
+}
+
+
+function correct(){
+
+if(!currentTeam){
+
+alert("Personne n'a buzzé")
+
+return
+
+}
+
+scores[currentTeam-1]++
+
+document.getElementById("s"+currentTeam).innerText=scores[currentTeam-1]
+
+if(scores[currentTeam-1]>=POINTS_TO_WIN){
+
+showWinner(currentTeam)
+
+}else{
+
+setTimeout(nextQuestion,1000)
+
+}
+
+}
+
+
+function wrong(){
+
+if(!currentTeam)return
+
+buzzLock=false
+
+document.getElementById("buzzinfo").innerText="❌ Mauvaise réponse, une autre équipe peut buzzer"
+
+startTimer()
+
+}
+
+
+function showWinner(team=null){
+
+let msg=""
+
+if(team){
+
+msg="🏆 Équipe "+team+" gagne !"
+
+}else{
+
+let max=Math.max(...scores)
+
+let winners=[]
+
+scores.forEach((s,i)=>{
+
+if(s===max) winners.push(i+1)
+
+})
+
+if(winners.length>1){
+
+msg="🏆 Ex-aequo : "+winners.join(",")
+
+}else{
+
+msg="🏆 Équipe "+winners[0]+" gagne"
+
+}
+
+}
+
+document.getElementById("question").innerText=msg
+
+clearInterval(timer)
+
+}
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Qui a construit l’arche ?",
+    "answer": "Noé",
+    "hint": "Déluge"
+  },
+  {
+    "question": "Combien de jours Jonas est resté dans le grand poisson ?",
+    "answer": "3",
+    "hint": "Tombeau"
+  },
+  {
+    "question": "Qui a reçu les Dix Commandements ?",
+    "answer": "Moïse",
+    "hint": "Exode"
+  },
+  {
+    "question": "Quel roi est connu pour sa grande sagesse ?",
+    "answer": "Salomon",
+    "hint": "Temple"
+  },
+  {
+    "question": "Quel prophète a été emporté au ciel dans un char de feu ?",
+    "answer": "Élie",
+    "hint": "Feu"
+  }
+]
